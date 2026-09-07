@@ -832,6 +832,25 @@
     .btt.show { opacity:1; visibility:visible; }
     .btt:hover { transform:translateY(-3px); }
 
+    /* ===== WHATSAPP FLOAT ===== */
+    .wa-float {
+      position:fixed; bottom:95px; right:30px;
+      width:54px; height:54px;
+      background:#25d366;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.7rem; color:var(--white);
+      z-index:998; box-shadow:0 8px 25px rgba(37,211,102,.4);
+      transition:transform .3s;
+      animation: waPulse 2s infinite;
+    }
+    .wa-float:hover { transform:scale(1.12); }
+    @keyframes waPulse {
+      0% { box-shadow:0 8px 25px rgba(37,211,102,.4), 0 0 0 0 rgba(37,211,102,.4); }
+      70% { box-shadow:0 8px 25px rgba(37,211,102,.4), 0 0 0 18px rgba(37,211,102,0); }
+      100% { box-shadow:0 8px 25px rgba(37,211,102,.4), 0 0 0 0 rgba(37,211,102,0); }
+    }
+
     /* ===== MODAL ===== */
     .modal-bg {
       position:fixed; inset:0; z-index:10000;
@@ -1405,6 +1424,11 @@
   <!-- Back to Top -->
   <button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></button>
 
+  <!-- WhatsApp Floating Button -->
+  <a href="https://wa.me/917000898427" target="_blank" class="wa-float" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
   <!-- Success Modal -->
   <div class="modal-bg" id="modal">
     <div class="modal-box">
@@ -1493,16 +1517,36 @@
     // === DATE MIN ===
     document.getElementById('bDate').setAttribute('min', new Date().toISOString().split('T')[0]);
 
-    // === FORM SUBMIT ===
+    // === FORM SUBMIT (WhatsApp) ===
+    const WHATSAPP_NUMBER = '917000898427';
     function handleBooking(e){
       e.preventDefault();
       if(!chosenTime){ alert('Please select a time slot.'); return false; }
       const name = document.getElementById('bName').value;
+      const phone = document.getElementById('bPhone').value;
+      const email = document.getElementById('bEmail').value;
       const svc = document.getElementById('bService').value;
       const date = document.getElementById('bDate').value;
+      const notes = document.getElementById('bNotes').value;
       const prettyDate = new Date(date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+
+      const msg = `*New Booking - SAKHI Beauty Studio*%0A%0A` +
+        `👤 *Name:* ${encodeURIComponent(name)}%0A` +
+        `📞 *Phone:* ${encodeURIComponent(phone)}%0A` +
+        `📧 *Email:* ${encodeURIComponent(email)}%0A` +
+        `💄 *Service:* ${encodeURIComponent(svc)}%0A` +
+        `📅 *Date:* ${encodeURIComponent(prettyDate)}%0A` +
+        `⏰ *Time:* ${encodeURIComponent(chosenTime)}%0A` +
+        (notes ? `📝 *Notes:* ${encodeURIComponent(notes)}%0A` : '') +
+        `%0AName: ${name}`;
+
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+
       document.getElementById('modalMsg').textContent =
-        `Thank you, ${name}! Your ${svc} appointment on ${prettyDate} at ${chosenTime} is confirmed. We'll send details to your email.`;
+        `Thank you, ${name}! Your ${svc} booking for ${prettyDate} at ${chosenTime} is being sent to our team on WhatsApp. We'll confirm shortly!`;
+
+      setTimeout(() => { window.open(waUrl, '_blank'); }, 800);
+
       document.getElementById('modal').classList.add('open');
       document.getElementById('bookingForm').reset();
       document.querySelectorAll('.time-pill').forEach(p => p.classList.remove('active'));
